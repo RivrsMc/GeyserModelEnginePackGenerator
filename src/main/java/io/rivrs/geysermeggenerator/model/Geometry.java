@@ -1,30 +1,34 @@
-package re.imc.geysermodelenginepackgenerator.generator;
+package io.rivrs.geysermeggenerator.model;
 
-import com.google.gson.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import lombok.Getter;
+import lombok.Setter;
+
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class Geometry {
 
-    String modelId;
-    JsonObject json;
-    List<String> bones = new ArrayList<>();
+    private final String modelId;
+    private final JsonObject json;
+    private final List<String> bones = new ArrayList<>();
+    private final Path path;
 
-    String path;
-    public void load(String json) {
-        this.json = new JsonParser().parse(json).getAsJsonObject();
+    public Geometry(String modelId, Path path, String json) {
+        this.modelId = modelId;
+        this.path = path;
+        this.json = JsonParser.parseString(json).getAsJsonObject();
     }
+
     public void setId(String id) {
         getInternal().get("description").getAsJsonObject().addProperty("identifier", id);
     }
@@ -35,7 +39,6 @@ public class Geometry {
     }
 
     public void modify() {
-
         JsonArray array = getInternal().get("bones").getAsJsonArray();
         Iterator<JsonElement> iterator = array.iterator();
         while (iterator.hasNext()) {
@@ -47,10 +50,10 @@ public class Geometry {
                 element.getAsJsonObject().addProperty("name", name);
 
                 if (name.equals("hitbox") ||
-                        name.equals("mount") ||
-                        name.startsWith("p_") ||
-                        name.startsWith("b_") ||
-                        name.startsWith("ob_")) {
+                    name.equals("mount") ||
+                    name.startsWith("p_") ||
+                    name.startsWith("b_") ||
+                    name.startsWith("ob_")) {
                     iterator.remove();
                 } else bones.add(name);
             }

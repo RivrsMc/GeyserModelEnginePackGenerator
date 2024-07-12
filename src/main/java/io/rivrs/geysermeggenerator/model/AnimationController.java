@@ -1,6 +1,10 @@
-package re.imc.geysermodelenginepackgenerator.generator;
+package io.rivrs.geysermeggenerator.model;
+
+import org.intellij.lang.annotations.Language;
 
 public class AnimationController {
+
+    @Language("JSON")
     public static final String TEMPLATE =
             """
                     {

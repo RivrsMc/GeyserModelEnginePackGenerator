@@ -1,27 +1,23 @@
-package re.imc.geysermodelenginepackgenerator.generator;
+package io.rivrs.geysermeggenerator.model;
+
+import java.nio.file.Path;
+import java.util.Map;
+
+import org.intellij.lang.annotations.Language;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import re.imc.geysermodelenginepackgenerator.GeneratorMain;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.Iterator;
-import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class Animation {
 
+    @Language("JSON")
     public static final String HEAD_TEMPLATE = """
              {
                "relative_to" : {
@@ -31,25 +27,24 @@ public class Animation {
             }
             """;
 
-    String modelId;
-    JsonObject json;
+    private final String modelId;
+    private final Path path;
+    private final JsonObject json;
 
-    String path;
-
-    public void load(String json) {
-        this.json = new JsonParser().parse(json).getAsJsonObject();
+    public Animation(String modelId, Path path, String json) {
+        this.modelId = modelId;
+        this.path = path;
+        this.json = JsonParser.parseString(json).getAsJsonObject();
     }
 
-    public void modify() {
+    public void modify(Entity entity) {
         JsonObject newAnimations = new JsonObject();
         for (Map.Entry<String, JsonElement> element : json.get("animations").getAsJsonObject().entrySet()) {
             if (element.getKey().equals("spawn")) {
-                GeneratorMain.entityMap
-                        .get(modelId).setHasSpawnAnimation(true);
+                entity.setHasSpawnAnimation(true);
             }
             if (element.getKey().equals("walk")) {
-                GeneratorMain.entityMap
-                        .get(modelId).setHasWalkAnimation(true);
+                entity.setHasWalkAnimation(true);
             }
             newAnimations.add("animation." + modelId + "." + element.getKey(), element.getValue());
         }
@@ -57,7 +52,7 @@ public class Animation {
 
     }
 
-    public void addHeadBind(Geometry geometry) {
+    public void addHeadBind(Entity entity, Geometry geometry) {
         JsonObject object = new JsonObject();
         object.addProperty("loop", true);
         JsonObject bones = new JsonObject();
@@ -75,7 +70,7 @@ public class Animation {
                     continue;
                 }
                 if (name.startsWith("h_") || name.startsWith("hi_")) {
-                    bones.add(name, new JsonParser().parse(HEAD_TEMPLATE));
+                    bones.add(name, JsonParser.parseString(HEAD_TEMPLATE));
                     i++;
                 }
             }
@@ -83,8 +78,7 @@ public class Animation {
         if (i == 0) {
             return;
         }
-        GeneratorMain.entityMap
-                        .get(modelId).setHasHeadAnimation(true);
+        entity.setHasHeadAnimation(true);
 
         object.add("bones", bones);
         json.get("animations").getAsJsonObject().add("animation." + modelId + ".look_at_target", object);

@@ -1,19 +1,17 @@
-package re.imc.geysermodelenginepackgenerator.generator;
+package io.rivrs.geysermeggenerator.model;
+
+import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class RenderController {
 
-    String modelId;
-    List<String> bones;
-
-    public RenderController(String modelId, List<String> bones) {
-        this.modelId = modelId;
-        this.bones = bones;
-    }
+    private final String modelId;
+    private final List<String> bones;
 
     // look, I'm fine with your other code and stuff, but I ain't using templates for JSON lmao
     public String generate() {
