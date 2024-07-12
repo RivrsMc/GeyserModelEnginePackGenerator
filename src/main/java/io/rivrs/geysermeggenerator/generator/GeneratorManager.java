@@ -50,7 +50,7 @@ public class GeneratorManager {
         String id = "modelengine:%s".formatted(entity.id());
         GeyserUtils.addCustomEntity(id);
 
-        entity.bones().forEach(bone -> GeyserUtils.addProperty(id, entity + ":" + bone, Boolean.class));
+        entity.bones().forEach(bone -> GeyserUtils.addProperty(id, entity.id() + ":" + bone, Boolean.class));
 
         GeyserUtils.addProperty(id, "modelengine:anim_idle", Boolean.class);
         GeyserUtils.addProperty(id, "modelengine:anim_spawn", Boolean.class);

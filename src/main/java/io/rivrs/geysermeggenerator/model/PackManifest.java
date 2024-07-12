@@ -20,6 +20,11 @@ public class PackManifest {
               "header": {
                 "name": "%name%",
                 "description": "%description%",
+                "min_engine_version": [
+                    1,
+                    20,
+                    80
+                ],
                 "uuid": "%uuid-1%",
                 "version": [%version%]
               },
