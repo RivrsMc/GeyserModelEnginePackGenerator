@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken;
 import io.rivrs.geysermeggenerator.ExtensionMain;
 import io.rivrs.geysermeggenerator.configuration.VersionConfiguration;
 import io.rivrs.geysermeggenerator.utils.FileUtils;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -26,6 +27,8 @@ public class CacheManager {
     private final ExtensionMain extension;
     private final Path dataFolder;
     private final List<Cache> caches = new ArrayList<>();
+    @Getter
+    private final List<CachedEntity> cachedEntities = new ArrayList<>();
 
     private VersionConfiguration versionConfiguration;
 
@@ -35,6 +38,40 @@ public class CacheManager {
 
         loadFromDisk();
         loadFromFileSystem();
+
+        this.loadEntities();
+    }
+
+    public void setCachedEntities(List<CachedEntity> entities) {
+        this.cachedEntities.clear();
+        this.cachedEntities.addAll(entities);
+    }
+
+    public void loadEntities() {
+        Path path = this.dataFolder.resolve("entities.json");
+        if (!Files.exists(path)) {
+            this.extension.logger().warning("Entities file not found");
+            return;
+        }
+
+        try {
+            TypeToken<List<CachedEntity>> type = new TypeToken<>() {
+            };
+            this.cachedEntities.addAll(ExtensionMain.GSON.fromJson(Files.newBufferedReader(path), type.getType()));
+
+            this.extension.logger().info("Loaded %d entities from disk".formatted(this.cachedEntities.size()));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load entities", e);
+        }
+    }
+
+    public void exportEntities() {
+        Path path = this.dataFolder.resolve("entities.json");
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            writer.write(ExtensionMain.GSON.toJson(this.cachedEntities));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to export entities", e);
+        }
     }
 
     public void loadFromDisk() {

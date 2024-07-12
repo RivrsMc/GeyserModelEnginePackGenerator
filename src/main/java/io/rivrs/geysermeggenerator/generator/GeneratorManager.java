@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -13,11 +15,13 @@ import org.jetbrains.annotations.Blocking;
 import com.google.gson.JsonParser;
 
 import io.rivrs.geysermeggenerator.ExtensionMain;
+import io.rivrs.geysermeggenerator.cache.CachedEntity;
 import io.rivrs.geysermeggenerator.configuration.Configuration;
 import io.rivrs.geysermeggenerator.model.*;
 import io.rivrs.geysermeggenerator.utils.FileUtils;
 import io.rivrs.geysermeggenerator.utils.ZipUtils;
 import lombok.RequiredArgsConstructor;
+import me.zimzaza4.geyserutils.geyser.GeyserUtils;
 
 @RequiredArgsConstructor
 public class GeneratorManager {
@@ -27,6 +31,7 @@ public class GeneratorManager {
     private final Map<String, Animation> animationMap = new HashMap<>();
     private final Map<String, Geometry> geometryMap = new HashMap<>();
     private final Map<String, Texture> textureMap = new HashMap<>();
+    private final List<CachedEntity> cachedEntities = new ArrayList<>();
 
     @Blocking
     public void generate() {
@@ -35,6 +40,24 @@ public class GeneratorManager {
 
         // Generate
         this.generatePack();
+    }
+
+    public void registerEntities() {
+        cachedEntities.forEach(this::registerEntity);
+    }
+
+    private void registerEntity(CachedEntity entity) {
+        String id = "modelengine:%s".formatted(entity.id());
+        GeyserUtils.addCustomEntity(id);
+
+        entity.bones().forEach(bone -> GeyserUtils.addProperty(id, entity + ":" + bone, Boolean.class));
+
+        GeyserUtils.addProperty(id, "modelengine:anim_idle", Boolean.class);
+        GeyserUtils.addProperty(id, "modelengine:anim_spawn", Boolean.class);
+        GeyserUtils.addProperty(id, "modelengine:anim_walk", Boolean.class);
+        GeyserUtils.addProperty(id, "modelengine:anim_stop", Boolean.class);
+
+        GeyserUtils.registerProperties(id);
     }
 
     private void load() {
@@ -135,6 +158,19 @@ public class GeneratorManager {
         }
 
         this.extension.logger().info("ModelEngine pack generated in " + (System.currentTimeMillis() - start) + "ms. (Took " + (System.currentTimeMillis() - start) + "ms)");
+
+        // Entities
+        entityMap.forEach((id, entity) -> {
+            Geometry geometry = geometryMap.get(id);
+            if (geometry == null) {
+                this.extension.logger().warning("Entity " + id + " is missing geometry");
+                return;
+            }
+
+            this.cachedEntities.add(new CachedEntity(id, geometry.getBones()));
+        });
+        this.extension.getCacheManager().setCachedEntities(cachedEntities);
+        this.extension.getCacheManager().exportEntities();
     }
 
     private void generateManifest(Path path) {
@@ -301,5 +337,10 @@ public class GeneratorManager {
         } catch (Throwable e) {
             return false;
         }
+    }
+
+    public void setCachedEntities(List<CachedEntity> cachedEntities) {
+        this.cachedEntities.clear();
+        this.cachedEntities.addAll(cachedEntities);
     }
 }

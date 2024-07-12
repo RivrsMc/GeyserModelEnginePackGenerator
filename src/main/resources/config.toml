@@ -1,3 +1,6 @@
+[general]
+inject-pack = true
+
 [pack]
 name = "Blocaria | Entities"
 description = "Entities for the Blocaria game"

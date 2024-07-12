@@ -31,6 +31,15 @@ public class Configuration {
         }
     }
 
+    // General
+    public Toml general() {
+        return this.toml.getTable("general");
+    }
+
+    public boolean injectPack() {
+        return this.general().getBoolean("inject-pack", true);
+    }
+
     // Pack
     public String packName() {
         return this.pack().getString("name");
