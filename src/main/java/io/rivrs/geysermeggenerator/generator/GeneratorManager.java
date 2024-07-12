@@ -131,6 +131,9 @@ public class GeneratorManager {
         // Manifest
         this.generateManifest(output.resolve("manifest.json"));
 
+        // Icon
+        this.exportIcon(output.resolve("pack_icon.png"));
+
         // Animations
         this.generateAnimations(animationsFolder);
 
@@ -320,6 +323,18 @@ public class GeneratorManager {
             Files.writeString(path, AnimationController.TEMPLATE, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException("Failed to export animation controller file at " + path, e);
+        }
+    }
+
+    private void exportIcon(Path destinationPath) {
+        Path path = this.extension.dataFolder().resolve("pack_icon.png");
+        if (!Files.exists(path))
+            return;
+
+        try {
+            Files.copy(path, destinationPath);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to export icon file at " + destinationPath, e);
         }
     }
 

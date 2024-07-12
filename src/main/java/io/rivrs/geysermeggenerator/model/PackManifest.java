@@ -10,7 +10,13 @@ public class PackManifest {
     @Language("JSON")
     public static final String TEMPLATE = """
             {
-              "format_version": 1,
+              "format_version": 2,
+              "metadata": {
+                "authors": [
+                   "Rivrs",
+                   "Roch Blondiaux"
+                ]
+              },
               "header": {
                 "name": "%name%",
                 "description": "%description%",
