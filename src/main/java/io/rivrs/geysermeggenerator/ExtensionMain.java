@@ -66,10 +66,10 @@ public class ExtensionMain implements Extension {
 
         // Convert
         this.generatorManager = new GeneratorManager(this);
-      //  if (this.cacheManager.hasChanged())
+        if (this.cacheManager.hasChanged())
             this.generatorManager.generate();
-      //  else
-      //      logger().info("No changes detected, skipping generation.");
+        else
+            logger().info("No changes detected, skipping generation.");
 
         // Export
         this.cacheManager.export(CacheType.FILE_SYSTEM);

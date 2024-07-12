@@ -149,7 +149,7 @@ public class GeneratorManager {
         try {
             Files.createDirectories(path.getParent());
             Configuration configuration = this.extension.getConfiguration();
-            String rawManifest = PackManifest.generate(configuration.packName(), configuration.packDescription(), configuration.packVersion());
+            String rawManifest = PackManifest.generate(configuration.packName(), configuration.packDescription(), this.extension.getCacheManager().getAndIncrementVersion());
             Files.writeString(path, rawManifest, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException("Failed to export manifest file", e);

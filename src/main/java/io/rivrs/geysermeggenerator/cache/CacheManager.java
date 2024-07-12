@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import com.google.gson.reflect.TypeToken;
 
 import io.rivrs.geysermeggenerator.ExtensionMain;
+import io.rivrs.geysermeggenerator.configuration.VersionConfiguration;
 import io.rivrs.geysermeggenerator.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +27,12 @@ public class CacheManager {
     private final Path dataFolder;
     private final List<Cache> caches = new ArrayList<>();
 
+    private VersionConfiguration versionConfiguration;
+
     public void load() {
+        this.versionConfiguration = new VersionConfiguration(this.dataFolder.resolve("version.toml"));
+        this.versionConfiguration.load();
+
         loadFromDisk();
         loadFromFileSystem();
     }
@@ -109,5 +115,28 @@ public class CacheManager {
         return this.caches.stream()
                 .filter(cache -> cache.type().equals(type))
                 .findFirst();
+    }
+
+    public List<Long> version() {
+        return this.versionConfiguration.version();
+    }
+
+    public List<Long> getAndIncrementVersion() {
+        List<Long> originalVersion = version();
+
+        // Increment
+        List<Long> newVersion = new ArrayList<>(originalVersion);
+        for (int i = newVersion.size() - 1; i >= 0; i--) {
+            long part = newVersion.get(i);
+            if (part < 9) {
+                newVersion.set(i, part + 1);
+                break;
+            } else {
+                newVersion.set(i, 0L);
+            }
+        }
+        this.versionConfiguration.save(newVersion);
+
+        return originalVersion;
     }
 }

@@ -3,8 +3,6 @@ package io.rivrs.geysermeggenerator.configuration;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.moandjiezana.toml.Toml;
 
@@ -36,10 +34,6 @@ public class Configuration {
     // Pack
     public String packName() {
         return this.pack().getString("name");
-    }
-
-    public List<Long> packVersion() {
-        return this.pack().getList("version", new ArrayList<>());
     }
 
     public String packDescription() {
