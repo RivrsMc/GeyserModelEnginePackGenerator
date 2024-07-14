@@ -2,12 +2,14 @@ package io.rivrs.geysermeggenerator.configuration.adapter;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 public class PathTypeAdapter extends TypeAdapter<Path> {
+
     @Override
     public void write(JsonWriter jsonWriter, Path path) throws IOException {
         jsonWriter.value(path.toString());
@@ -18,6 +20,6 @@ public class PathTypeAdapter extends TypeAdapter<Path> {
         if (jsonReader.peek() == null)
             return null;
 
-        return Path.of(jsonReader.nextString());
+        return Paths.get(jsonReader.nextString());
     }
 }

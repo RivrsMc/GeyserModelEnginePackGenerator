@@ -1,5 +1,6 @@
 [general]
 inject-pack = true
+dev-mode = false
 
 [pack]
 name = "Blocaria | Entities"

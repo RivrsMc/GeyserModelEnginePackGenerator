@@ -1,4 +1,4 @@
-package io.rivrs.geysermeggenerator.cache;
+package io.rivrs.geysermeggenerator.cache.model;
 
 import java.util.List;
 

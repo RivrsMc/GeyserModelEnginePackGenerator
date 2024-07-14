@@ -36,7 +36,7 @@ public class FileUtils {
         for (Path path : paths) {
             try {
                 if (!Files.isDirectory(path))
-                    Files.createDirectory(path);
+                    Files.createDirectories(path);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

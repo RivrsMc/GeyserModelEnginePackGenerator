@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Blocking;
 import com.google.gson.JsonParser;
 
 import io.rivrs.geysermeggenerator.ExtensionMain;
-import io.rivrs.geysermeggenerator.cache.CachedEntity;
+import io.rivrs.geysermeggenerator.cache.model.CachedEntity;
 import io.rivrs.geysermeggenerator.configuration.Configuration;
 import io.rivrs.geysermeggenerator.model.*;
 import io.rivrs.geysermeggenerator.utils.FileUtils;
@@ -155,7 +155,9 @@ public class GeneratorManager {
         // Zip pack
         try {
             ZipUtils.zipFolder(output, this.extension.getResourcePackPath());
-            FileUtils.deleteFolders(output);
+
+            if (!this.extension.getConfiguration().devMode())
+                FileUtils.deleteFolders(output);
         } catch (IOException e) {
             throw new RuntimeException("Failed to zip ModelEngine pack", e);
         }
@@ -273,7 +275,7 @@ public class GeneratorManager {
 
             // Alter
             entity.getProperties().setProperty("render_controller", "controller.render." + modelId);
-            entity.modify(entity.getPath().getParent().getFileName().toString());
+            entity.modify(entity.getPath().getParent().getParent().getFileName().toString());
 
             // Export
             Path relativizedPath = this.extension.getInputFolder().relativize(entity.getPath().getParent().getParent());

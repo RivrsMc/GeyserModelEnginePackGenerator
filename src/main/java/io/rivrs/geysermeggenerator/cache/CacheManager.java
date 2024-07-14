@@ -14,6 +14,9 @@ import org.jetbrains.annotations.NotNull;
 import com.google.gson.reflect.TypeToken;
 
 import io.rivrs.geysermeggenerator.ExtensionMain;
+import io.rivrs.geysermeggenerator.cache.model.Cache;
+import io.rivrs.geysermeggenerator.cache.model.CachedEntity;
+import io.rivrs.geysermeggenerator.cache.model.CachedFile;
 import io.rivrs.geysermeggenerator.configuration.VersionConfiguration;
 import io.rivrs.geysermeggenerator.utils.FileUtils;
 import lombok.Getter;

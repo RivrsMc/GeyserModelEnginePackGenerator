@@ -40,6 +40,10 @@ public class Configuration {
         return this.general().getBoolean("inject-pack", true);
     }
 
+    public boolean devMode() {
+        return this.general().getBoolean("dev-mode", false);
+    }
+
     // Pack
     public String packName() {
         return this.pack().getString("name");

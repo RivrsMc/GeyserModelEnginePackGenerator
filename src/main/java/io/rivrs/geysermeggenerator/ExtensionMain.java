@@ -60,13 +60,21 @@ public class ExtensionMain implements Extension {
         this.configuration = new Configuration(dataFolder().resolve("config.toml"));
         this.configuration.load();
 
+        // Dev mode
+        if (this.configuration.devMode()) {
+            logger().info("================== DEV MODE ==================");
+            logger().info("You are running the extension in dev mode.");
+            logger().info("This will disable caching and force generation.");
+            logger().info("=============================================");
+        }
+
         // Cache
         this.cacheManager = new CacheManager(this, cacheFolder);
         this.cacheManager.load();
 
         // Convert
         this.generatorManager = new GeneratorManager(this);
-        if (this.cacheManager.hasChanged())
+        if (this.cacheManager.hasChanged() || this.configuration.devMode())
             this.generatorManager.generate();
         else {
             this.generatorManager.setCachedEntities(this.cacheManager.getCachedEntities());
