@@ -79,7 +79,7 @@ public class Animation {
                 if (parent.startsWith("h_") || parent.startsWith("hi_")) {
                     continue;
                 }
-                if (name.startsWith("h_") || name.startsWith("hi_")) {
+                if (name.startsWith("h_") || name.startsWith("hi_") || name.equalsIgnoreCase("head")) {
                     bones.add(name, JsonParser.parseString(HEAD_TEMPLATE));
                     i++;
                 }
