@@ -17,6 +17,7 @@ import com.google.gson.JsonParser;
 import io.rivrs.geysermeggenerator.ExtensionMain;
 import io.rivrs.geysermeggenerator.cache.model.CachedEntity;
 import io.rivrs.geysermeggenerator.configuration.Configuration;
+import io.rivrs.geysermeggenerator.mappings.EntityMapping;
 import io.rivrs.geysermeggenerator.model.*;
 import io.rivrs.geysermeggenerator.utils.FileUtils;
 import io.rivrs.geysermeggenerator.utils.ZipUtils;
@@ -32,6 +33,7 @@ public class GeneratorManager {
     private final Map<String, Geometry> geometryMap = new HashMap<>();
     private final Map<String, Texture> textureMap = new HashMap<>();
     private final List<CachedEntity> cachedEntities = new ArrayList<>();
+    private final List<EntityMapping> entityMappings = new ArrayList<>();
 
     @Blocking
     public void generate() {
@@ -107,6 +109,7 @@ public class GeneratorManager {
 
             Path path = geometryMap.get(modelId).getPath();
             this.entityMap.put(modelId, new Entity(modelId, path));
+            this.entityMappings.add(new EntityMapping(modelId));
         }
 
         this.extension.logger().info("Loaded " + this.entityMap.size() + " entities (Took " + (System.currentTimeMillis() - start) + "ms)");
@@ -176,6 +179,9 @@ public class GeneratorManager {
         });
         this.extension.getCacheManager().setCachedEntities(cachedEntities);
         this.extension.getCacheManager().exportEntities();
+
+        // Mappings
+        this.exportEntityMappings();
     }
 
     private void generateManifest(Path path) {
@@ -210,12 +216,18 @@ public class GeneratorManager {
             }
 
             // Alter animation
-            animation.modify(entity);
+            EntityMapping entityMapping = entityMappings.stream()
+                    .filter(e -> e.getModelId().equals(modelId))
+                    .findFirst()
+                    .orElseThrow();
+            for (String animationName : animation.modify(entity)) {
+                entityMapping.addAnimation(animationName);
+            }
 
             // Link geometry
             Geometry geometry = this.geometryMap.get(modelId);
             if (geometry != null)
-                animation.addHeadBind(entity, geometry);
+                animation.addHeadBind(entityMapping, entity, geometry);
 
             // Export
             Path relativizedPath = this.extension.getInputFolder().relativize(animation.getPath().getParent().getParent());
@@ -238,6 +250,12 @@ public class GeneratorManager {
             // Alter geometry
             geometry.modify();
 
+            // Mappings
+            entityMappings.stream()
+                    .filter(e -> e.getModelId().equals(modelId))
+                    .findFirst()
+                    .ifPresent(entityMapping1 -> entityMapping1.addBones(geometry.getBones()));
+
             // Export
             Path relativizedPath = this.extension.getInputFolder().relativize(geometry.getPath().getParent().getParent());
             Path path = dataFolder.resolve(relativizedPath.resolve(modelId + ".geo.json"));
@@ -258,6 +276,9 @@ public class GeneratorManager {
 
             Path relativizedPath = this.extension.getInputFolder().relativize(texture.path().getParent().getParent());
             Path path = dataFolder.resolve(relativizedPath.resolve(modelId + ".png"));
+
+            if (Files.exists(path))
+                return;
 
             try {
                 Files.createDirectories(path.getParent());
@@ -337,6 +358,16 @@ public class GeneratorManager {
             Files.copy(path, destinationPath);
         } catch (IOException e) {
             throw new RuntimeException("Failed to export icon file at " + destinationPath, e);
+        }
+    }
+
+    private void exportEntityMappings() {
+        Path path = this.extension.dataFolder().resolve("entity_mappings.json");
+        try {
+            Files.createDirectories(path.getParent());
+            Files.writeString(path, ExtensionMain.GSON.toJson(entityMappings), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to export entity mappings file at " + path, e);
         }
     }
 

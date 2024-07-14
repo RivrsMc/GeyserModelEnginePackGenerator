@@ -1,6 +1,8 @@
 package io.rivrs.geysermeggenerator.model;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.intellij.lang.annotations.Language;
@@ -10,6 +12,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.rivrs.geysermeggenerator.mappings.EntityMapping;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,8 +40,9 @@ public class Animation {
         this.json = JsonParser.parseString(json).getAsJsonObject();
     }
 
-    public void modify(Entity entity) {
+    public List<String> modify(Entity entity) {
         JsonObject newAnimations = new JsonObject();
+        List<String> animations = new ArrayList<>();
         for (Map.Entry<String, JsonElement> element : json.get("animations").getAsJsonObject().entrySet()) {
             if (element.getKey().equals("spawn"))
                 entity.setHasSpawnAnimation(true);
@@ -50,12 +54,15 @@ public class Animation {
             if (element.getValue().getAsJsonObject().has("timeline"))
                 element.getValue().getAsJsonObject().remove("timeline");
 
-            newAnimations.add("animation." + modelId + "." + element.getKey(), element.getValue());
+            String animationName = "animation." + modelId + "." + element.getKey();
+            newAnimations.add(animationName, element.getValue());
+            animations.add(animationName);
         }
         json.add("animations", newAnimations);
+        return animations;
     }
 
-    public void addHeadBind(Entity entity, Geometry geometry) {
+    public void addHeadBind(EntityMapping entityMapping, Entity entity, Geometry geometry) {
         JsonObject object = new JsonObject();
         object.addProperty("loop", true);
         JsonObject bones = new JsonObject();
@@ -78,12 +85,15 @@ public class Animation {
                 }
             }
         }
-        if (i == 0) {
+        if (i == 0)
             return;
-        }
         entity.setHasHeadAnimation(true);
 
         object.add("bones", bones);
-        json.get("animations").getAsJsonObject().add("animation." + modelId + ".look_at_target", object);
+
+        String animationName = "animation." + modelId + ".look_at_target";
+        json.get("animations").getAsJsonObject().add(animationName, object);
+
+        entityMapping.addAnimation(animationName);
     }
 }
