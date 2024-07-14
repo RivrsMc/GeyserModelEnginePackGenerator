@@ -40,16 +40,19 @@ public class Animation {
     public void modify(Entity entity) {
         JsonObject newAnimations = new JsonObject();
         for (Map.Entry<String, JsonElement> element : json.get("animations").getAsJsonObject().entrySet()) {
-            if (element.getKey().equals("spawn")) {
+            if (element.getKey().equals("spawn"))
                 entity.setHasSpawnAnimation(true);
-            }
-            if (element.getKey().equals("walk")) {
+            if (element.getKey().equals("walk"))
                 entity.setHasWalkAnimation(true);
-            }
+
+            // Remove timeline from animations
+            // TODO: Add support for timeline
+            if (element.getValue().getAsJsonObject().has("timeline"))
+                element.getValue().getAsJsonObject().remove("timeline");
+
             newAnimations.add("animation." + modelId + "." + element.getKey(), element.getValue());
         }
         json.add("animations", newAnimations);
-
     }
 
     public void addHeadBind(Entity entity, Geometry geometry) {
