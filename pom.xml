@@ -3,83 +3,121 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>re.imc</groupId>
     <artifactId>GeyserModelEnginePackGenerator</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <!-- properties -->
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- dependencies -->
+        <paper.version>1.21.4-R0.1-SNAPSHOT</paper.version>
+        <geyser.version>2.6.0-SNAPSHOT</geyser.version>
     </properties>
 
+    <!-- repositories -->
     <repositories>
+        <!-- opencollab -->
         <repository>
-            <id>opencollab-release-repo</id>
-            <url>https://repo.opencollab.dev/maven-releases/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>opencollab-snapshot</id>
+            <url>https://repo.opencollab.dev/main/</url>
         </repository>
-        <repository>
-            <id>opencollab-snapshot-repo</id>
-            <url>https://repo.opencollab.dev/maven-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
+        <!-- jitpack -->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
+    <!-- dependencies -->
     <dependencies>
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.36</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- jetbrains/annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>26.0.1</version>
+        </dependency>
+        <!-- gson -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.8.9</version>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.28</version>
-            <scope>compile</scope>
-        </dependency>
+        <!-- geyser/api -->
         <dependency>
             <groupId>org.geysermc.geyser</groupId>
             <artifactId>api</artifactId>
-            <version>2.5.0-SNAPSHOT</version>
+            <version>${geyser.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- geyser-utils/geyser -->
         <dependency>
             <groupId>me.zimzaza4</groupId>
             <artifactId>geyserutils-geyser</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/geyserutils-geyser-1.0-SNAPSHOT.jar</systemPath>
+            <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
+        <!-- blockbenchmodelreader -->
         <dependency>
             <groupId>me.rochblondiaux</groupId>
             <artifactId>blockbenchmodelreader</artifactId>
             <version>1.2</version>
         </dependency>
+        <!-- bedrock-pack-schema -->
         <dependency>
             <groupId>com.github.GeyserMC.PackConverter</groupId>
             <artifactId>bedrock-pack-schema</artifactId>
             <version>3d8150474d</version>
         </dependency>
+        <!-- pack-schema-api -->
         <dependency>
             <groupId>com.github.GeyserMC.PackConverter</groupId>
             <artifactId>pack-schema-api</artifactId>
             <version>3d8150474d</version>
         </dependency>
     </dependencies>
+
+    <!-- build -->
+    <build>
+        <defaultGoal>clean package</defaultGoal>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
 </project>
