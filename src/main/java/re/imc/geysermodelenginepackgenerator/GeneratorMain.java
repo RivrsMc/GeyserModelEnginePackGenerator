@@ -3,9 +3,6 @@ package re.imc.geysermodelenginepackgenerator;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
-import re.imc.geysermodelenginepackgenerator.generator.*;
-
-import javax.imageio.ImageIO;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -14,7 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
+import re.imc.geysermodelenginepackgenerator.generator.*;
 
 public class GeneratorMain {
     public static final Map<String, Entity> entityMap = new HashMap<>();
@@ -112,7 +109,6 @@ public class GeneratorMain {
             entityMap.put(modelId, entity);
         }
     }
-
 
 
     public static void generateFromFolder(String currentPath, File folder, boolean root) {
@@ -242,7 +238,17 @@ public class GeneratorMain {
         if (!manifestFile.exists()) {
             try {
                 Files.writeString(manifestFile.toPath(),
-                        PackManifest.generate(), StandardCharsets.UTF_8);
+                        PackManifest.generate(ExtensionMain.get()), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        File packIconInput = new File(source.getParentFile(), "icon.png");
+        File packIcon = new File(output, "pack_icon.png");
+        if (packIconInput.exists()) {
+            try {
+                Files.copy(packIconInput.toPath(), packIcon.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -267,7 +273,7 @@ public class GeneratorMain {
                 e.printStackTrace();
             }
         }
-        
+
         for (Map.Entry<String, Animation> entry : animationMap.entrySet()) {
             Entity entity = entityMap.get(entry.getKey());
             Geometry geo = geometryMap.get(entry.getKey());

@@ -29,6 +29,16 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <!-- rivrs/releases -->
+        <repository>
+            <id>rivrs-release</id>
+            <url>http://10.8.0.6:8081/repository/rivrs-release/</url>
+        </repository>
+        <!-- rivrs/snapshots -->
+        <repository>
+            <id>rivrs-snapshot</id>
+            <url>http://10.8.0.6:8081/repository/rivrs-snapshot/</url>
+        </repository>
     </repositories>
 
     <!-- dependencies -->
