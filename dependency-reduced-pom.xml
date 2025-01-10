@@ -76,6 +76,7 @@
   <properties>
     <geyser.version>2.6.0-SNAPSHOT</geyser.version>
     <java.version>21</java.version>
+    <creative.bedrock.version>1.0</creative.bedrock.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <paper.version>1.21.4-R0.1-SNAPSHOT</paper.version>
   </properties>
