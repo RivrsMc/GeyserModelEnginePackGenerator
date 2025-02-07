@@ -1,25 +1,27 @@
 package re.imc.geysermodelenginepackgenerator;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import re.imc.geysermodelenginepackgenerator.generator.*;
 
 public class GeneratorMain {
+
     public static final Map<String, Entity> entityMap = new HashMap<>();
     public static final Map<String, Animation> animationMap = new HashMap<>();
     public static final Map<String, Geometry> geometryMap = new HashMap<>();
     public static final Map<String, Map<String, Texture>> textureMap = new HashMap<>();
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting()
             .create();
+    public static final List<String> content = new CopyOnWriteArrayList<>();
+    public static final List<String> texturesList = new CopyOnWriteArrayList<>();
 
 
     public static void main(String[] args) {
@@ -267,8 +269,8 @@ public class GeneratorMain {
 
         if (!materialFile.exists()) {
             try {
-                Files.writeString(materialFile.toPath(),
-                        Material.TEMPLATE, StandardCharsets.UTF_8);
+                Files.writeString(materialFile.toPath(), Material.TEMPLATE, StandardCharsets.UTF_8);
+                content.add("materials/entity.material");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -296,6 +298,9 @@ public class GeneratorMain {
             try {
                 Files.writeString(path, GSON.toJson(entry.getValue().getJson()), StandardCharsets.UTF_8);
                 Files.writeString(pathController, controller.getJson().toString(), StandardCharsets.UTF_8);
+
+                content.add("animations/" + entry.getValue().getPath() + entry.getKey() + ".animation.json");
+                content.add("animations_controllers/" + entry.getValue().getPath() + entry.getKey() + ".animation_controllers.json");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -322,12 +327,13 @@ public class GeneratorMain {
 
                         entry.getValue().setId(id + "_" + suffix);
 
-                        if (path.toFile().exists()) {
+                        if (path.toFile().exists())
                             continue;
-                        }
 
                         try {
                             Files.writeString(path, GSON.toJson(entry.getValue().getJson()), StandardCharsets.UTF_8);
+
+                            content.add("models/entity/" + entry.getValue().getPath() + entry.getKey() + "_" + suffix + ".geo.json");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -359,6 +365,10 @@ public class GeneratorMain {
                 try {
                     if (entry.getValue().getImage() != null) {
                         Files.write(path, entry.getValue().getImage());
+
+                        String texturePath = "textures/" + entry.getValue().getPath() + textures.getKey() + "/" + entry.getKey() + ".png";
+                        texturesList.add(texturePath);
+                        content.add(texturePath);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -393,6 +403,50 @@ public class GeneratorMain {
             }
             try {
                 Files.writeString(renderPath, controller.generate(), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Contents
+        File contentFile = new File(output, "contents.json");
+        if (!contentFile.exists()) {
+            JsonObject resourcePackContent = new JsonObject();
+            JsonArray contentArray = new JsonArray();
+            content.stream()
+                    .map(s -> s.replace(File.separatorChar, '/'))
+                    .map(s -> {
+                        JsonObject object = new JsonObject();
+                        object.addProperty("path", s);
+                        return object;
+                    })
+                    .forEach(contentArray::add);
+            resourcePackContent.add("content", contentArray);
+
+            try {
+                Files.writeString(contentFile.toPath(), GSON.toJson(resourcePackContent), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Textures
+        File texturesFile = new File(output, "textures/textures.json");
+        if (!texturesFile.exists()) {
+            JsonObject resourcePackTextures = new JsonObject();
+            JsonArray texturesArray = new JsonArray();
+            texturesList.stream()
+                    .map(s -> s.replace(File.separatorChar, '/'))
+                    .map(s -> {
+                        JsonObject object = new JsonObject();
+                        object.addProperty("path", s);
+                        return object;
+                    })
+                    .forEach(texturesArray::add);
+            resourcePackTextures.add("textures", texturesArray);
+
+            try {
+                Files.writeString(texturesFile.toPath(), GSON.toJson(resourcePackTextures), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 e.printStackTrace();
             }
