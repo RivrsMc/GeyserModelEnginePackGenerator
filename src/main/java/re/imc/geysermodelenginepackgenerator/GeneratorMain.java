@@ -1,20 +1,18 @@
 package re.imc.geysermodelenginepackgenerator;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
-import re.imc.geysermodelenginepackgenerator.generator.*;
-
-import javax.imageio.ImageIO;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
+
+import re.imc.geysermodelenginepackgenerator.generator.*;
 
 public class GeneratorMain {
     public static final Map<String, Entity> entityMap = new HashMap<>();
@@ -241,6 +239,7 @@ public class GeneratorMain {
         output.mkdirs();
         if (!manifestFile.exists()) {
             try {
+
                 Files.writeString(manifestFile.toPath(),
                         PackManifest.generate(), StandardCharsets.UTF_8);
             } catch (IOException e) {

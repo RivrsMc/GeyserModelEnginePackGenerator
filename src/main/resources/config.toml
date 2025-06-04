@@ -1,0 +1,8 @@
+[general]
+inject-pack = true
+optimize-textures = true
+
+[pack]
+name = "example-pack"
+description = "An example pack for demonstration purposes."
+version = [1, 0, 0]
