@@ -7,9 +7,6 @@ import java.nio.file.Path;
 import java.util.zip.ZipOutputStream;
 
 import org.geysermc.event.subscribe.Subscribe;
-import org.geysermc.geyser.api.command.Command;
-import org.geysermc.geyser.api.command.CommandSource;
-import org.geysermc.geyser.api.event.lifecycle.GeyserDefineCommandsEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserLoadResourcePacksEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserPreInitializeEvent;
 import org.geysermc.geyser.api.extension.Extension;
@@ -18,6 +15,7 @@ import org.geysermc.geyser.api.extension.ExtensionLogger;
 import lombok.Getter;
 import re.imc.geysermodelenginepackgenerator.configuration.Configuration;
 import re.imc.geysermodelenginepackgenerator.generator.Entity;
+import re.imc.geysermodelenginepackgenerator.util.ChecksumUtils;
 import re.imc.geysermodelenginepackgenerator.util.ZipUtil;
 
 public class ExtensionMain implements Extension {
@@ -39,27 +37,39 @@ public class ExtensionMain implements Extension {
 
         source = dataFolder().resolve("input").toFile();
         source.mkdirs();
+
         logger = logger();
-        loadConfig();
+        try {
+            loadConfig();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load configuration", e);
+        }
     }
 
-    @Subscribe
-    public void onDefineCommand(GeyserDefineCommandsEvent event) {
-        event.register(Command.builder(this)
-                .name("reload")
-                .source(CommandSource.class)
-                .description("GeyserModelPackGenerator Reload Command")
-                .permission("geysermodelenginepackgenerator.admin")
-                .executor((source, command, args) -> {
-                    loadConfig();
-                    source.sendMessage("GeyserModelEnginePackGenerator reloaded!");
-                })
-                .build());
-    }
+    public void loadConfig() throws IOException {
+        Path propertiesFile = dataFolder().resolve("checksum");
 
-    public void loadConfig() {
+        boolean generate = true;
+        String currentChecksum = ChecksumUtils.hashDirectory(source.toPath(), false);
+        if (Files.exists(dataFolder().resolve("generated_pack.zip"))) {
+            if (Files.exists(propertiesFile)) {
+                String lastChecksum = Files.readString(propertiesFile);
+                if (lastChecksum.equals(currentChecksum)) {
+                    logger.info("No changes detected, skipping regeneration.");
+                    generate = false;
+                } else {
+                    Files.writeString(propertiesFile, currentChecksum);
+                    logger.info("Changes detected, regenerating pack.");
+                }
+            } else {
+                Files.createFile(propertiesFile);
+                Files.writeString(propertiesFile, currentChecksum);
+            }
+        }
+
         File generatedPack = dataFolder().resolve("generated_pack").toFile();
-        GeneratorMain.startGenerate(source, generatedPack);
+        if (generate)
+            GeneratorMain.startGenerate(source, generatedPack);
         generatedPackZip = dataFolder().resolve("generated_pack.zip");
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(generatedPackZip))) {
             ZipUtil.compressFolder(generatedPack, null, zipOutputStream);

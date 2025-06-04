@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import re.imc.geysermodelenginepackgenerator.ExtensionMain;
 import re.imc.geysermodelenginepackgenerator.configuration.Configuration;
+import re.imc.geysermodelenginepackgenerator.model.VersionCounter;
 
 public class PackManifest {
 
@@ -28,7 +29,7 @@ public class PackManifest {
             }
             """;
 
-    public static String generate() {
+    public static String generate(VersionCounter counter) {
         Configuration.Pack configuration = ExtensionMain.get().getConfiguration().getPack();
 
 
@@ -36,7 +37,8 @@ public class PackManifest {
                 .replace("%uuid-2%", UUID.randomUUID().toString())
                 .replace("%name%", configuration.name())
                 .replace("%description%", configuration.description())
-                .replace("%version%", String.join(", ", configuration.version().stream()
+                .replace("%version%", String.join(", ", counter.getVersion()
+                        .stream()
                         .map(String::valueOf)
                         .toList()));
     }

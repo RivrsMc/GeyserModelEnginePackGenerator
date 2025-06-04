@@ -16,6 +16,7 @@ import com.googlecode.pngtastic.core.PngOptimizer;
 
 import re.imc.geysermodelenginepackgenerator.generator.*;
 import re.imc.geysermodelenginepackgenerator.model.ContentTable;
+import re.imc.geysermodelenginepackgenerator.model.VersionCounter;
 
 public class GeneratorMain {
 
@@ -27,15 +28,11 @@ public class GeneratorMain {
             .setPrettyPrinting() // TODO: Remove this in production
             .create();
 
-
     public static void main(String[] args) {
         File source = new File(args.length > 0 ? args[0] : "input");
-
         File output = new File("output");
-
         startGenerate(source, output);
     }
-
 
     public static void generateFromZip(String currentPath, String modelId, ZipFile zip) {
         Entity entity = new Entity(modelId);
@@ -115,7 +112,6 @@ public class GeneratorMain {
             entityMap.put(modelId, entity);
         }
     }
-
 
     public static void generateFromFolder(String currentPath, File folder, boolean root) {
         if (folder.listFiles() == null) {
@@ -227,6 +223,10 @@ public class GeneratorMain {
     }
 
     public static void startGenerate(File source, File output) {
+        VersionCounter versionCounter = new VersionCounter(ExtensionMain.get());
+        versionCounter.load();
+        versionCounter.increase(true);
+
         generateFromFolder("", source, true);
 
         File animationsFolder = new File(output, "animations");
@@ -247,7 +247,7 @@ public class GeneratorMain {
             try {
 
                 Files.writeString(manifestFile.toPath(),
-                        PackManifest.generate(), StandardCharsets.UTF_8);
+                        PackManifest.generate(versionCounter), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -255,7 +255,7 @@ public class GeneratorMain {
 
         // Icon
         Path iconPath = ExtensionMain.get().dataFolder().resolve("icon.png");
-        if (Files.exists(iconPath)) {
+        if (Files.exists(iconPath) && !new File(output, "pack_icon.png").exists()) {
             try {
                 Files.copy(iconPath, new File(output, "pack_icon.png").toPath());
             } catch (IOException e) {
@@ -405,11 +405,13 @@ public class GeneratorMain {
 
         // Textures list
         Path texturesListPath = texturesFolder.toPath().getParent().resolve("textures_list.json");
-        try {
-            Files.createFile(texturesListPath);
-            Files.writeString(texturesListPath, GSON.toJson(texturesList), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write textures list file", e);
+        if (!Files.exists(texturesListPath)) {
+            try {
+                Files.createFile(texturesListPath);
+                Files.writeString(texturesListPath, GSON.toJson(texturesList), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to write textures list file", e);
+            }
         }
 
         // Entity
@@ -450,11 +452,13 @@ public class GeneratorMain {
 
         // Content table
         Path contentTablePath = output.toPath().resolve("contents.json");
-        try {
-            Files.createFile(contentTablePath);
-            Files.writeString(contentTablePath, GSON.toJson(contentTable), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write content table file", e);
+        if (!Files.exists(contentTablePath)) {
+            try {
+                Files.createFile(contentTablePath);
+                Files.writeString(contentTablePath, GSON.toJson(contentTable), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to write content table file", e);
+            }
         }
     }
 

@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 public class Configuration {
 
     private final Path path;
-    private Toml toml;
 
     @Getter
     private Pack pack;
@@ -24,30 +23,29 @@ public class Configuration {
     public void load() {
         this.createDefault();
 
-        this.toml = new Toml().read(path.toFile());
-        if (this.toml == null)
+        Toml toml = new Toml().read(path.toFile());
+        if (toml == null)
             throw new RuntimeException("Failed to load configuration from: " + path);
 
-        if (!this.toml.contains("pack"))
+        if (!toml.contains("pack"))
             throw new RuntimeException("Configuration file does not contain 'pack' section: " + path);
 
-        Toml packSection = this.toml.getTable("pack");
+        Toml packSection = toml.getTable("pack");
         if (packSection == null)
             throw new RuntimeException("Configuration file does not contain 'pack' section: " + path);
 
         String name = packSection.getString("name");
         String description = packSection.getString("description");
-        List<Long> version = packSection.getList("version");
 
-        if (name == null || description == null || version == null || version.size() != 3)
+        if (name == null || description == null)
             throw new RuntimeException("Invalid 'pack' section in configuration file: " + path);
 
-        this.pack = new Pack(name, description, version);
+        this.pack = new Pack(name, description);
 
-        if (!this.toml.contains("general"))
+        if (!toml.contains("general"))
             throw new RuntimeException("Configuration file does not contain 'general' section: " + path);
 
-        Toml generalSection = this.toml.getTable("general");
+        Toml generalSection = toml.getTable("general");
         if (generalSection == null)
             throw new RuntimeException("Configuration file does not contain 'general' section: " + path);
 
@@ -86,6 +84,6 @@ public class Configuration {
 
     }
 
-    public record Pack(String name, String description, List<Long> version) {
+    public record Pack(String name, String description) {
     }
 }
