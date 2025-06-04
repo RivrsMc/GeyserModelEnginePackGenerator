@@ -37,7 +37,7 @@ public class Configuration {
 
         String name = packSection.getString("name");
         String description = packSection.getString("description");
-        List<Float> version = packSection.getList("version");
+        List<Long> version = packSection.getList("version");
 
         if (name == null || description == null || version == null || version.size() != 3)
             throw new RuntimeException("Invalid 'pack' section in configuration file: " + path);
@@ -86,6 +86,6 @@ public class Configuration {
 
     }
 
-    public record Pack(String name, String description, List<Float> version) {
+    public record Pack(String name, String description, List<Long> version) {
     }
 }

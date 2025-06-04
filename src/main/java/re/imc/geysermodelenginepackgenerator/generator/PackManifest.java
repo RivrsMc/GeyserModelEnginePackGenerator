@@ -22,7 +22,7 @@ public class PackManifest {
                   "type": "resources",
                   "description": "%description%",
                   "uuid": "%uuid-2%",
-                  "version": [%version%],
+                  "version": [%version%]
                 }
               ]
             }

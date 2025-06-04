@@ -35,12 +35,12 @@ public class ExtensionMain implements Extension {
         this.configuration = new Configuration(dataFolder().resolve("config.toml"));
         this.configuration.load();
 
+        instance = this;
+
         source = dataFolder().resolve("input").toFile();
         source.mkdirs();
         logger = logger();
         loadConfig();
-
-        instance = this;
     }
 
     @Subscribe
