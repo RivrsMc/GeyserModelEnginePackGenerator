@@ -1,18 +1,19 @@
 package re.imc.geysermodelenginepackgenerator.generator;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import re.imc.geysermodelenginepackgenerator.GeneratorMain;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -29,10 +30,10 @@ public class Animation {
             }
             """;
 
-    String modelId;
-    JsonObject json;
+    private String modelId;
+    private JsonObject json;
     @Getter
-    Set<String> animationIds = new HashSet<>();
+    private Set<String> animationIds = new HashSet<>();
 
     String path;
 
@@ -77,7 +78,8 @@ public class Animation {
                                             }
                                         }
                                     }
-                                } catch (Throwable t) {}
+                                } catch (Throwable t) {
+                                }
                                 if (end != null && end.has("lerp_mode") && end.get("lerp_mode").getAsString().equals("catmullrom")) {
                                     end.addProperty("lerp_mode", "linear");
                                 }
@@ -120,7 +122,7 @@ public class Animation {
             return;
         }
         GeneratorMain.entityMap
-                        .get(modelId).setHasHeadAnimation(true);
+                .get(modelId).setHasHeadAnimation(true);
 
         object.add("bones", bones);
         json.get("animations").getAsJsonObject().add("animation." + modelId + ".look_at_target", object);

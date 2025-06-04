@@ -1,15 +1,19 @@
 package re.imc.geysermodelenginepackgenerator.generator;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import me.zimzaza4.geyserutils.geyser.GeyserUtils;
-
-import java.util.*;
 
 @Getter
 @Setter
@@ -49,16 +53,15 @@ public class Entity {
             }
             """;
 
-
-    String modelId;
-    JsonObject json;
-    boolean hasHeadAnimation = false;
-    Animation animation;
-    Geometry geometry;
-    RenderController renderController;
-    String path;
-    Map<String, Texture> textureMap = new HashMap<>();
-    ModelConfig modelConfig;
+    private String modelId;
+    private JsonObject json;
+    private boolean hasHeadAnimation = false;
+    private Animation animation;
+    private Geometry geometry;
+    private RenderController renderController;
+    private String path;
+    private Map<String, Texture> textureMap = new HashMap<>();
+    private ModelConfig modelConfig;
 
 
 
@@ -111,7 +114,7 @@ public class Entity {
         JsonArray animate = description.get("scripts").getAsJsonObject().get("animate").getAsJsonArray();
 
         if (animation != null) {
-            for (String animation : animation.animationIds) {
+            for (String animation : animation.getAnimationIds()) {
                 String controller = "controller.animation." + modelId + "." + animation;
                 animate.add(animation + "_control");
                 jsonAnimations.addProperty(animation, "animation." + modelId + "." + animation);
@@ -141,7 +144,7 @@ public class Entity {
         }
 
         if (animation != null) {
-            for (int i = 0; i < Math.ceil(animation.animationIds.size() / 24f); i++) {
+            for (int i = 0; i < Math.ceil(animation.getAnimationIds().size() / 24f); i++) {
                 GeyserUtils.addProperty(id, "modelengine:anim" + i, Integer.class);
             }
         }

@@ -1,14 +1,16 @@
 package re.imc.geysermodelenginepackgenerator.generator;
 
-import com.google.gson.*;
+import java.util.*;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.geysermc.geyser.api.extension.ExtensionLogger;
-import re.imc.geysermodelenginepackgenerator.ExtensionMain;
-
-import java.util.*;
 
 @Getter
 @Setter
@@ -16,11 +18,10 @@ import java.util.*;
 @NoArgsConstructor
 public class Geometry {
 
-
-    String modelId;
-    String geometryId;
-    JsonObject json;
-    Map<String, Bone> bones = new HashMap<>();
+    private String modelId;
+    private String geometryId;
+    private JsonObject json;
+    private Map<String, Bone> bones = new HashMap<>();
 
     String path;
     public void load(String json) {
@@ -68,10 +69,10 @@ public class Geometry {
             }
 
             for (Bone bone : bones.values()) {
-                if (bone.parent != null) {
-                    Bone parent = bones.get(bone.parent);
+                if (bone.getParent() != null) {
+                    Bone parent = bones.get(bone.getParent());
                     if (parent != null) {
-                        parent.children.add(bone);
+                        parent.getChildren().add(bone);
                         addAllChildren(parent, bone);
                     }
                 }
@@ -81,8 +82,8 @@ public class Geometry {
     }
 
     public void addAllChildren(Bone p, Bone c) {
-        p.allChildren.add(c);
-        Bone parent = bones.get(p.parent);
+        p.getAllChildren().add(c);
+        Bone parent = bones.get(p.getParent());
         if (parent != null) {
             addAllChildren(parent, c);
         }

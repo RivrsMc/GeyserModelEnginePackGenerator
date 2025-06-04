@@ -1,16 +1,16 @@
 package re.imc.geysermodelenginepackgenerator.generator;
 
+import java.util.*;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import java.util.*;
 
 public class RenderController {
 
     public static final Set<String> NEED_REMOVE_WHEN_SORT = Set.of("pbody_", "plarm_", "prarm_", "plleg_", "prleg_", "phead_", "p_");
-    String modelId;
-    Map<String, Bone> bones;
-    Entity entity;
+    private final String modelId;
+    private final Map<String, Bone> bones;
+    private final Entity entity;
 
     public RenderController(String modelId, Map<String, Bone> bones, Entity entity) {
         this.modelId = modelId;
@@ -29,13 +29,13 @@ public class RenderController {
         root.add("render_controllers", renderControllers);
 
         Set<Bone> processedBones = new HashSet<>();
-        boolean singleTexture = entity.textureMap.size() == 1 && entity.modelConfig.getPerTextureUvSize().isEmpty();
-        for (String key : entity.textureMap.keySet()) {
+        boolean singleTexture = entity.getTextureMap().size() == 1 && entity.getModelConfig().getPerTextureUvSize().isEmpty();
+        for (String key : entity.getTextureMap().keySet()) {
             if (key.endsWith("_e")) {
                 continue;
             }
             // Texture texture = entity.textureMap.get(key);
-            Set<String> uvBonesId = entity.getModelConfig().bingingBones.get(key);
+            Set<String> uvBonesId = entity.getModelConfig().getBingingBones().get(key);
 
             if (uvBonesId == null) {
                 if (!singleTexture) {
@@ -137,7 +137,7 @@ public class RenderController {
                 }
 
 
-                for (Map.Entry<String, Set<String>> entry : entity.getModelConfig().bingingBones.entrySet()) {
+                for (Map.Entry<String, Set<String>> entry : entity.getModelConfig().getBingingBones().entrySet()) {
                     if (entry.getKey().equals(key)) {
                         continue;
                     }
@@ -149,11 +149,11 @@ public class RenderController {
                 if (!processedBones.contains(bone) && (uvParent || uvAllBones.contains(boneName) || uvBonesId.contains("*"))) {
                     int index = i;
                     if (boneName.startsWith("uv_")) {
-                        index = sorted.indexOf(bone.parent);
+                        index = sorted.indexOf(bone.getParent());
                     }
 
                     int n = (int) Math.pow(2, (index % 24));
-                    if (entity.modelConfig.isDisablePartVisibility()) {
+                    if (entity.getModelConfig().isDisablePartVisibility()) {
                         visibilityItem.addProperty(boneName, true);
                     } else {
                         visibilityItem.addProperty(boneName, "math.mod(math.floor(query.property('modelengine:bone" + index / 24 + "') / " + n + "), 2) == 1");

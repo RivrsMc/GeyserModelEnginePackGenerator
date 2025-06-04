@@ -1,22 +1,19 @@
 package re.imc.geysermodelenginepackgenerator.generator;
 
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.nio.file.Path;
-import java.util.Set;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class Texture {
 
-    String modelId;
-    String path;
-    Set<String> bindingBones;
-    byte[] image;
+    private String modelId;
+    private String path;
+    private Set<String> bindingBones;
+    private byte[] image;
 
 }
