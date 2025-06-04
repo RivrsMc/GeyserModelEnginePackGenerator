@@ -238,6 +238,8 @@ public class GeneratorMain {
         File materialsFolder = new File(output, "materials");
         File manifestFile = new File(output, "manifest.json");
 
+        Path outputDirectory = output.toPath();
+
         output.mkdirs();
 
         // Manifest
@@ -279,7 +281,7 @@ public class GeneratorMain {
                 Files.writeString(materialFile.toPath(),
                         Material.TEMPLATE, StandardCharsets.UTF_8);
 
-                contentTable.add("materials/entity.material");
+                contentTable.add(outputDirectory.relativize(materialFile.toPath()).toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -302,7 +304,8 @@ public class GeneratorMain {
                 continue;
             }
 
-            contentTable.add("animations/" + entry.getValue().getPath() + entry.getKey() + ".animation.json");
+            contentTable.add(outputDirectory.relativize(path).toString());
+            contentTable.add(outputDirectory.relativize(pathController).toString());
 
             AnimationController controller = new AnimationController();
             controller.load(entry.getValue(), entity);
@@ -357,7 +360,7 @@ public class GeneratorMain {
                 continue;
             }
 
-            contentTable.add("models/entity/" + entry.getValue().getPath() + entry.getKey() + ".geo.json");
+            contentTable.add(outputDirectory.relativize(path).toString());
 
             try {
                 Files.writeString(path, GSON.toJson(entry.getValue().getJson()), StandardCharsets.UTF_8);
@@ -371,8 +374,7 @@ public class GeneratorMain {
         List<String> texturesList = new ArrayList<>();
         for (Map.Entry<String, Map<String, Texture>> textures : textureMap.entrySet()) {
             for (Map.Entry<String, Texture> entry : textures.getValue().entrySet()) {
-                String rawPath = entry.getValue().getPath() + textures.getKey() + "/" + entry.getKey() + ".png";
-                Path path = texturesFolder.toPath().resolve(rawPath);
+                Path path = texturesFolder.toPath().resolve(entry.getValue().getPath() + textures.getKey() + "/" + entry.getKey() + ".png");
                 path.toFile().getParentFile().mkdirs();
                 if (Files.exists(path))
                     continue;
@@ -391,8 +393,9 @@ public class GeneratorMain {
                             Files.write(path, entry.getValue().getImage());
                         }
 
-                        texturesList.add("textures/entity/" + rawPath);
-                        contentTable.add("textures/entity/" + rawPath);
+                        String raw = outputDirectory.relativize(path).toString();
+                        texturesList.add(raw);
+                        contentTable.add(raw);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -436,7 +439,7 @@ public class GeneratorMain {
                 continue;
             }
 
-            contentTable.add("entity/" + entity.getPath() + entry.getKey() + ".entity.json");
+            contentTable.add(outputDirectory.relativize(renderPath).toString());
 
             try {
                 Files.writeString(renderPath, controller.generate(), StandardCharsets.UTF_8);
