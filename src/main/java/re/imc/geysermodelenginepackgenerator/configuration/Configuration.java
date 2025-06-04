@@ -51,8 +51,8 @@ public class Configuration {
         if (generalSection == null)
             throw new RuntimeException("Configuration file does not contain 'general' section: " + path);
 
-        boolean injectPack = generalSection.getBoolean("inject_pack", true);
-        boolean optimizeTextures = generalSection.getBoolean("optimize_textures", true);
+        boolean injectPack = generalSection.getBoolean("inject-pack", true);
+        boolean optimizeTextures = generalSection.getBoolean("optimize-textures", true);
 
         this.general = new General(injectPack, optimizeTextures);
 

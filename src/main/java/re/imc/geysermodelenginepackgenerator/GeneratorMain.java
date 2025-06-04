@@ -15,13 +15,16 @@ import com.googlecode.pngtastic.core.PngImage;
 import com.googlecode.pngtastic.core.PngOptimizer;
 
 import re.imc.geysermodelenginepackgenerator.generator.*;
+import re.imc.geysermodelenginepackgenerator.model.ContentTable;
 
 public class GeneratorMain {
+
     public static final Map<String, Entity> entityMap = new HashMap<>();
     public static final Map<String, Animation> animationMap = new HashMap<>();
     public static final Map<String, Geometry> geometryMap = new HashMap<>();
     public static final Map<String, Map<String, Texture>> textureMap = new HashMap<>();
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting()
+    public static final Gson GSON = new GsonBuilder()
+            .setPrettyPrinting() // TODO: Remove this in production
             .create();
 
 
@@ -267,12 +270,16 @@ public class GeneratorMain {
         renderControllersFolder.mkdirs();
         materialsFolder.mkdirs();
 
+        ContentTable contentTable = new ContentTable(new ArrayList<>());
+
         // Material file
         File materialFile = new File(materialsFolder, "entity.material");
         if (!materialFile.exists()) {
             try {
                 Files.writeString(materialFile.toPath(),
                         Material.TEMPLATE, StandardCharsets.UTF_8);
+
+                contentTable.add("materials/entity.material");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -294,6 +301,8 @@ public class GeneratorMain {
             if (path.toFile().exists()) {
                 continue;
             }
+
+            contentTable.add("animations/" + entry.getValue().getPath() + entry.getKey() + ".animation.json");
 
             AnimationController controller = new AnimationController();
             controller.load(entry.getValue(), entity);
@@ -332,6 +341,8 @@ public class GeneratorMain {
                             continue;
                         }
 
+                        contentTable.add("models/entity/" + entry.getValue().getPath() + entry.getKey() + "_" + suffix + ".geo.json");
+
                         try {
                             Files.writeString(path, GSON.toJson(entry.getValue().getJson()), StandardCharsets.UTF_8);
                         } catch (IOException e) {
@@ -346,6 +357,8 @@ public class GeneratorMain {
                 continue;
             }
 
+            contentTable.add("models/entity/" + entry.getValue().getPath() + entry.getKey() + ".geo.json");
+
             try {
                 Files.writeString(path, GSON.toJson(entry.getValue().getJson()), StandardCharsets.UTF_8);
             } catch (IOException e) {
@@ -355,9 +368,11 @@ public class GeneratorMain {
 
         // Textures
         PngOptimizer pngOptimizer = new PngOptimizer();
+        List<String> texturesList = new ArrayList<>();
         for (Map.Entry<String, Map<String, Texture>> textures : textureMap.entrySet()) {
             for (Map.Entry<String, Texture> entry : textures.getValue().entrySet()) {
-                Path path = texturesFolder.toPath().resolve(entry.getValue().getPath() + textures.getKey() + "/" + entry.getKey() + ".png");
+                String rawPath = entry.getValue().getPath() + textures.getKey() + "/" + entry.getKey() + ".png";
+                Path path = texturesFolder.toPath().resolve(rawPath);
                 path.toFile().getParentFile().mkdirs();
                 if (Files.exists(path))
                     continue;
@@ -375,11 +390,23 @@ public class GeneratorMain {
                         } else {
                             Files.write(path, entry.getValue().getImage());
                         }
+
+                        texturesList.add("textures/entity/" + rawPath);
+                        contentTable.add("textures/entity/" + rawPath);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+        }
+
+        // Textures list
+        Path texturesListPath = texturesFolder.toPath().getParent().resolve("textures_list.json");
+        try {
+            Files.createFile(texturesListPath);
+            Files.writeString(texturesListPath, GSON.toJson(texturesList), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write textures list file", e);
         }
 
         // Entity
@@ -408,11 +435,23 @@ public class GeneratorMain {
             if (renderPath.toFile().exists()) {
                 continue;
             }
+
+            contentTable.add("entity/" + entity.getPath() + entry.getKey() + ".entity.json");
+
             try {
                 Files.writeString(renderPath, controller.generate(), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        // Content table
+        Path contentTablePath = output.toPath().resolve("contents.json");
+        try {
+            Files.createFile(contentTablePath);
+            Files.writeString(contentTablePath, GSON.toJson(contentTable), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write content table file", e);
         }
     }
 
