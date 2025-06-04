@@ -11,6 +11,8 @@ import java.util.zip.ZipFile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
+import com.googlecode.pngtastic.core.PngImage;
+import com.googlecode.pngtastic.core.PngOptimizer;
 
 import re.imc.geysermodelenginepackgenerator.generator.*;
 
@@ -352,17 +354,27 @@ public class GeneratorMain {
         }
 
         // Textures
+        PngOptimizer pngOptimizer = new PngOptimizer();
         for (Map.Entry<String, Map<String, Texture>> textures : textureMap.entrySet()) {
             for (Map.Entry<String, Texture> entry : textures.getValue().entrySet()) {
                 Path path = texturesFolder.toPath().resolve(entry.getValue().getPath() + textures.getKey() + "/" + entry.getKey() + ".png");
                 path.toFile().getParentFile().mkdirs();
-
-                if (path.toFile().exists()) {
+                if (Files.exists(path))
                     continue;
-                }
+
                 try {
                     if (entry.getValue().getImage() != null) {
-                        Files.write(path, entry.getValue().getImage());
+                        if (ExtensionMain.get().getConfiguration().getGeneral().optimizeTextures()) {
+                            PngImage pngImage = new PngImage(entry.getValue().getImage());
+                            PngImage optimized = pngOptimizer.optimize(pngImage, false, 12);
+
+                            Files.createFile(path);
+                            try (OutputStream outputStream = Files.newOutputStream(path)) {
+                                optimized.writeDataOutputStream(outputStream);
+                            }
+                        } else {
+                            Files.write(path, entry.getValue().getImage());
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
