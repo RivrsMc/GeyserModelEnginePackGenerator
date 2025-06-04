@@ -25,7 +25,7 @@ public class GeneratorMain {
     public static final Map<String, Geometry> geometryMap = new HashMap<>();
     public static final Map<String, Map<String, Texture>> textureMap = new HashMap<>();
     public static final Gson GSON = new GsonBuilder()
-            .setPrettyPrinting() // TODO: Remove this in production
+            // .setPrettyPrinting() // TODO: Remove this in production
             .create();
 
     public static void main(String[] args) {
