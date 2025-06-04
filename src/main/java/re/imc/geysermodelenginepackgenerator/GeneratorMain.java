@@ -112,7 +112,6 @@ public class GeneratorMain {
     }
 
 
-
     public static void generateFromFolder(String currentPath, File folder, boolean root) {
         if (folder.listFiles() == null) {
             return;
@@ -237,6 +236,8 @@ public class GeneratorMain {
 
 
         output.mkdirs();
+
+        // Manifest
         if (!manifestFile.exists()) {
             try {
 
@@ -247,6 +248,15 @@ public class GeneratorMain {
             }
         }
 
+        // Icon
+        Path iconPath = ExtensionMain.get().dataFolder().resolve("icon.png");
+        if (Files.exists(iconPath)) {
+            try {
+                Files.copy(iconPath, new File(output, "pack_icon.png").toPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         animationsFolder.mkdirs();
         entityFolder.mkdirs();
@@ -266,7 +276,7 @@ public class GeneratorMain {
                 e.printStackTrace();
             }
         }
-        
+
         for (Map.Entry<String, Animation> entry : animationMap.entrySet()) {
             Entity entity = entityMap.get(entry.getKey());
             Geometry geo = geometryMap.get(entry.getKey());
