@@ -38,7 +38,7 @@ public class Animation {
     String path;
 
     public void load(String string) {
-        this.json = new JsonParser().parse(string).getAsJsonObject();
+        this.json = JsonParser.parseString(string).getAsJsonObject();
         JsonObject newAnimations = new JsonObject();
         for (Map.Entry<String, JsonElement> element : json.get("animations").getAsJsonObject().entrySet()) {
             animationIds.add(element.getKey());
@@ -113,7 +113,7 @@ public class Animation {
                     continue;
                 }
                 if (name.startsWith("h_") || name.startsWith("hi_")) {
-                    bones.add(name, new JsonParser().parse(HEAD_TEMPLATE));
+                    bones.add(name, JsonParser.parseString(HEAD_TEMPLATE));
                     i++;
                 }
             }

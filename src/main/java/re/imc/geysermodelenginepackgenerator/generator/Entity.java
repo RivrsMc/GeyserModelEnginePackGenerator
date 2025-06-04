@@ -73,7 +73,7 @@ public class Entity {
 
     public void modify() {
 
-        json = new JsonParser().parse(TEMPLATE.replace("%entity_id%", modelId)
+        json = JsonParser.parseString(TEMPLATE.replace("%entity_id%", modelId)
                 .replace("%geometry%", "geometry.meg_" + modelId)
                 .replace("%texture%", "textures/entity/" + path + modelId)
                 .replace("%look_at_target%",  modelConfig.isEnableHeadRotation() ? "animation." + modelId + ".look_at_target" : "animation.none")

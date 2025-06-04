@@ -25,7 +25,7 @@ public class Geometry {
 
     String path;
     public void load(String json) {
-        this.json = new JsonParser().parse(json).getAsJsonObject();
+        this.json = JsonParser.parseString(json).getAsJsonObject();
     }
     public void setId(String id) {
         geometryId = id;

@@ -231,9 +231,7 @@ public class GeneratorMain {
         File animationControllersFolder = new File(output, "animation_controllers");
         File renderControllersFolder = new File(output, "render_controllers");
         File materialsFolder = new File(output, "materials");
-
         File manifestFile = new File(output, "manifest.json");
-
 
         output.mkdirs();
 
@@ -258,6 +256,7 @@ public class GeneratorMain {
             }
         }
 
+        // Create folders
         animationsFolder.mkdirs();
         entityFolder.mkdirs();
         modelsFolder.mkdirs();
@@ -266,8 +265,8 @@ public class GeneratorMain {
         renderControllersFolder.mkdirs();
         materialsFolder.mkdirs();
 
+        // Material file
         File materialFile = new File(materialsFolder, "entity.material");
-
         if (!materialFile.exists()) {
             try {
                 Files.writeString(materialFile.toPath(),
@@ -277,6 +276,7 @@ public class GeneratorMain {
             }
         }
 
+        // Animation
         for (Map.Entry<String, Animation> entry : animationMap.entrySet()) {
             Entity entity = entityMap.get(entry.getKey());
             Geometry geo = geometryMap.get(entry.getKey());
@@ -304,6 +304,7 @@ public class GeneratorMain {
             }
         }
 
+        // Geometry
         for (Map.Entry<String, Geometry> entry : geometryMap.entrySet()) {
             entry.getValue().modify();
             Path path = modelsFolder.toPath().resolve(entry.getValue().getPath() + entry.getKey() + ".geo.json");
@@ -350,8 +351,8 @@ public class GeneratorMain {
             }
         }
 
+        // Textures
         for (Map.Entry<String, Map<String, Texture>> textures : textureMap.entrySet()) {
-
             for (Map.Entry<String, Texture> entry : textures.getValue().entrySet()) {
                 Path path = texturesFolder.toPath().resolve(entry.getValue().getPath() + textures.getKey() + "/" + entry.getKey() + ".png");
                 path.toFile().getParentFile().mkdirs();
@@ -369,6 +370,7 @@ public class GeneratorMain {
             }
         }
 
+        // Entity
         for (Map.Entry<String, Entity> entry : entityMap.entrySet()) {
             Entity entity = entry.getValue();
             entity.modify();
@@ -400,23 +402,11 @@ public class GeneratorMain {
                 e.printStackTrace();
             }
         }
-
-        /*
-        File controller = new File(animationControllersFolder, "modelengine.animation_controller.json");
-        if (!controller.exists()) {
-            try {
-                Files.writeString(controller.toPath(), AnimationController.TEMPLATE);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-         */
     }
 
     private static boolean isGeometryFile(String json) {
         try {
-            return new JsonParser().parse(json).getAsJsonObject().has("minecraft:geometry");
+            return JsonParser.parseString(json).getAsJsonObject().has("minecraft:geometry");
         } catch (Throwable e) {
             return false;
         }
@@ -424,7 +414,7 @@ public class GeneratorMain {
 
     private static boolean isAnimationFile(String json) {
         try {
-            return new JsonParser().parse(json).getAsJsonObject().has("animations");
+            return JsonParser.parseString(json).getAsJsonObject().has("animations");
         } catch (Throwable e) {
             return false;
         }

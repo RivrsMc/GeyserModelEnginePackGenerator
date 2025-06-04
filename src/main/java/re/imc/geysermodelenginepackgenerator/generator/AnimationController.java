@@ -54,7 +54,7 @@ public class AnimationController {
         for (String id : sorted) {
 
             int n = (int) Math.pow(2, (i % 24));
-            JsonObject controller = new JsonParser().parse(CONTROLLER_TEMPLATE.replace("%anim%", id).replace("%query%", "math.mod(math.floor(query.property('modelengine:anim" + i / 24 + "') / " + n + "), 2)")).getAsJsonObject();
+            JsonObject controller = JsonParser.parseString(CONTROLLER_TEMPLATE.replace("%anim%", id).replace("%query%", "math.mod(math.floor(query.property('modelengine:anim" + i / 24 + "') / " + n + "), 2)")).getAsJsonObject();
             animationControllers.add("controller.animation." + animation.getModelId() + "." + id, controller);
             i++;
             if (entity != null) {
