@@ -124,9 +124,6 @@ public class Entity {
     }
 
     public void register() {
-
-
-
         String id = "modelengine:" + modelId;
         boolean registered = REGISTERED_ENTITIES.contains(id);
         if (registered) {

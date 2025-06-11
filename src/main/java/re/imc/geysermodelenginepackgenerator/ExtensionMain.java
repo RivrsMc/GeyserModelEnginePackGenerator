@@ -68,14 +68,15 @@ public class ExtensionMain implements Extension {
         }
 
         File generatedPack = dataFolder().resolve("generated_pack").toFile();
-        if (generate)
-            GeneratorMain.startGenerate(source, generatedPack);
+        // if (generate)
+        GeneratorMain.startGenerate(source, generatedPack, generate);
         generatedPackZip = dataFolder().resolve("generated_pack.zip");
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(generatedPackZip))) {
             ZipUtil.compressFolder(generatedPack, null, zipOutputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         for (Entity entity : GeneratorMain.entityMap.values()) {
             entity.register();
         }

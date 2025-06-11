@@ -24,15 +24,7 @@ public class GeneratorMain {
     public static final Map<String, Animation> animationMap = new HashMap<>();
     public static final Map<String, Geometry> geometryMap = new HashMap<>();
     public static final Map<String, Map<String, Texture>> textureMap = new HashMap<>();
-    public static final Gson GSON = new GsonBuilder()
-            // .setPrettyPrinting() // TODO: Remove this in production
-            .create();
-
-    public static void main(String[] args) {
-        File source = new File(args.length > 0 ? args[0] : "input");
-        File output = new File("output");
-        startGenerate(source, output);
-    }
+    public static final Gson GSON = new Gson();
 
     public static void generateFromZip(String currentPath, String modelId, ZipFile zip) {
         Entity entity = new Entity(modelId);
@@ -222,10 +214,11 @@ public class GeneratorMain {
         }
     }
 
-    public static void startGenerate(File source, File output) {
+    public static void startGenerate(File source, File output, boolean generate) {
         VersionCounter versionCounter = new VersionCounter(ExtensionMain.get());
         versionCounter.load();
-        versionCounter.increase(true);
+        if (generate)
+            versionCounter.increase(true);
 
         generateFromFolder("", source, true);
 
