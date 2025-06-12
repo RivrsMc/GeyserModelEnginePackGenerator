@@ -17,7 +17,7 @@ public class PackManifest {
                 "description": "%description%",
                 "uuid": "%uuid-1%",
                 "version": [%version%],
-                "min_engine_version": [1, 20, 70],
+                "min_engine_version": [1, 20, 70]
               },
               "modules": [
                 {
