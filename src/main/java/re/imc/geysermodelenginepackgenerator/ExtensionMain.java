@@ -72,7 +72,7 @@ public class ExtensionMain implements Extension {
         GeneratorMain.startGenerate(source, generatedPack, generate);
         generatedPackZip = dataFolder().resolve("generated_pack.zip");
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(generatedPackZip))) {
-            ZipUtil.compressFolder(generatedPack, null, zipOutputStream);
+            ZipUtil.compressFolder(generatedPack, "meg", zipOutputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
